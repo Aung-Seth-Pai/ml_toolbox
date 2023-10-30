@@ -15,21 +15,19 @@ app = Flask(__name__)
 
 # FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN")
-PAGE_ACCESS_TOKEN = os.environ.get("PAGE_ACCESS_TOKEN")
-bot = Bot(PAGE_ACCESS_TOKEN)
+# PAGE_ACCESS_TOKEN = os.environ.get("PAGE_ACCESS_TOKEN")
+# bot = Bot(PAGE_ACCESS_TOKEN)
 
-# # test server
-# @app.route('/')
-# def hello_world():
-#     return 'Hello, World!'
+# test server
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
 def verify_fb_token(req):
     if req.args.get("hub.verify_token") == VERIFY_TOKEN:
         return req.args.get("hub.challenge")
     else:
         return 'Invalid verification token'
-
-
 
 @app.route("/policy", methods=["GET"])
 def policy():
@@ -39,6 +37,9 @@ def policy():
 def listen():
     """This is the main function flask uses to 
     listen at the `/webhook` endpoint"""
+    PAGE_ACCESS_TOKEN = os.environ.get("PAGE_ACCESS_TOKEN")
+    bot = Bot(PAGE_ACCESS_TOKEN)
+    
     if request.method == 'GET':
         print("Authenticating.....")
         return verify_fb_token(request)
@@ -49,7 +50,6 @@ def listen():
         for event in payload['entry']:
             # if user sent message
             if "messaging" in event.keys():
-                
                 messaging = event['messaging']
                 for message in messaging:
                     if message.get('message'):
@@ -60,7 +60,10 @@ def listen():
                             if is_user_message(message):
                                 text = message['message']['text']
                                 print(text)
-                                # respond(recipient_id, text, bot)   
+                                try:
+                                    respond(recipient_id, text, bot)   
+                                except Exception as e:
+                                    print(e)
                                 # bot.send_text_message(recipient_id, text)
                                 return "OK"          
                         #if user sends us a GIF, photo,video, or any other non-text item
@@ -73,7 +76,6 @@ def listen():
                 pass  
         return "ok"
     
-
 # To locally run the app
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0',port=5000)
+    app.run(debug=True, host='0.0.0.0',port=5000)
