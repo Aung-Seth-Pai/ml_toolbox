@@ -1,6 +1,67 @@
-data/
-images/
+# ------------------------
+# Python
+# ------------------------
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.pyc
 
-mlflow_from_databricks/
-
+# ------------------------
+# Virtual Environments
+# ------------------------
 env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ------------------------
+# Data files (optional)
+# ------------------------
+*.csv
+*.tsv
+*.h5
+*.hdf5
+*.parquet
+*.feather
+*.sqlite
+*.db
+*.pkl
+*.joblib
+
+# ------------------------
+# Logs and reports
+# ------------------------
+*.log
+*.out
+*.dat
+*.rpt
+*.pdf
+
+# ------------------------
+# IDE / Editor
+# ------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.pydevproject
+
+# ------------------------
+# OS-specific
+# ------------------------
+.DS_Store
+Thumbs.db
+
+# ------------------------
+# Environment / Package managers
+# ------------------------
+.conda/
+*.conda
+*.env
+*.env.yaml
+pip-log.txt
+pip-delete-this-directory.txt
