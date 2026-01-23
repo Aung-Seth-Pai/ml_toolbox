@@ -19,6 +19,13 @@ env.bak/
 venv.bak/
 
 # ------------------------
+# uv specific
+# ------------------------
+.python-version
+# NOTE: Do NOT add uv.lock here. It MUST be committed.
+
+
+# ------------------------
 # Data files (optional)
 # ------------------------
 *.csv
