@@ -3,6 +3,7 @@ from airflow.operators.email import EmailOperator
 
 def greet(name, age):
     print(f"Hello {name}, age {age}")
+    
 python_task = PythonOperator(
     task_id="greet_task",
     python_callable=greet,
