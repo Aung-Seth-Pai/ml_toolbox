@@ -9,6 +9,9 @@ This project shows:
 - Load balancing across replicas
 - Observing which backend served each request
 - Chaos testing by killing containers
+- **SSL/TLS Termination**: Handling HTTPS at the NGINX level
+- **Automatic HTTP to HTTPS Redirection**: Ensuring secure connections
+- **Optimized Worker Architecture**: Tuning NGINX for modern CPU cores
 
 ---
 
@@ -57,6 +60,8 @@ my-project/
 └── src/
     ├── server.js
     └── index.html
+├── nginx-selfsigned.crt  # Added for SSL
+├── nginx-selfsigned.key  # Added for SSL
 ```
 
 ---
@@ -214,6 +219,30 @@ docker start nginx_primer-app-2
 ```
 
 NGINX will automatically add it back into the load balancing pool.
+
+---
+
+# HTTPS & Security (demo with self-signed certificate)
+
+This project includes a self-signed SSL certificate to demonstrate secure traffic handling.
+
+### 1. Generate a certificate (if not present)
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout nginx-selfsigned.key \
+  -out nginx-selfsigned.crt
+```
+
+### 2. Accessing the Secure Site
+
+Navigate to ```https://localhost```.
+
+Note: Because the certificate is self-signed, your browser will show a warning. 
+Click Advanced → Proceed to view the site.
+
+### 3. Automatic Redirection
+
+Try visiting ```http://localhost```. NGINX is configured to issue a ```301 Moved Permanently``` response, forcing your browser to the encrypted ```https://``` version.
 
 ---
 

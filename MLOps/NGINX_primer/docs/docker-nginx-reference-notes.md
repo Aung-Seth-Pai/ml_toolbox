@@ -218,15 +218,14 @@ events {
 - Reads configuration
 - Manages worker processes
 
-**Worker Processes**
+### Worker Processes (`worker_processes`)
+- **Setting**: `worker_processes auto;`
+- **Logic**: Spawns one worker per CPU core.
+- **Precaution**: If your Docker container has strict CPU limits (e.g., `cpus: 0.5`), set this to `1` manually. Using `auto` on a limited container can cause "CPU Thrashing" as multiple processes fight for a tiny slice of processing time.
 
-- Handle HTTP requests
-
-**Worker Connections**
-
-- Maximum simultaneous connections per worker
-
----
+### Worker Connections (`worker_connections`)
+- Defines how many simultaneous connections each worker can handle.
+- **Total Capacity Formula**: $Max\ Connections = worker\_processes \times worker\_connections$
 
 ### Example
 
@@ -507,6 +506,21 @@ http {
 
 }
 ```
+
+# 13. SSL/TLS Termination & Proxy Headers
+
+In this project, NGINX handles the "heavy lifting" of decryption.
+
+### Why terminate SSL at NGINX?
+1. **CPU Efficiency**: Node.js is single-threaded; offloading decryption to NGINX (multi-process) keeps the app fast.
+2. **Simplified Management**: You only need to manage certificates in one place, not in every microservice.
+3. **Internal Security**: NGINX talks to Node over a private Docker network via plain HTTP, which is safe since that network isn't exposed to the internet.
+
+### Critical Proxy Headers
+When NGINX proxies a request, it must "hand off" the client's identity using these headers:
+- `X-Real-IP`: The actual IP of the user.
+- `X-Forwarded-Proto`: Tells the app if the user is on `https`.
+- `X-Forwarded-For`: The full path of IPs the request took.
 
 ---
 
