@@ -65,164 +65,49 @@ my-project/
 
 ## package.json
 
-```json
-{
-  "name": "nginx-primer-node",
-  "version": "1.0.0",
-  "description": "Simple Node webserver for NGINX primer",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "author": "zephyr",
-  "license": "MIT"
-}
-```
+This file defines the Node.js project's metadata and scripts.
+
+- [package.json](package.json)
 
 ---
 
 ## src/server.js
 
-```javascript
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+This is the core Node.js application server, handling HTTP requests and exposing instance information in development mode.
 
-const PORT = process.env.PORT || 3000;
-const APP_NAME = process.env.APP_NAME || "default-app";
-const instanceName = process.env.HOSTNAME || "unknown-instance";
-const isDev = process.env.NODE_ENV === 'development';
-
-console.log(`Starting instance: ${APP_NAME}`);
-
-const server = http.createServer((req, res) => {
-
-    console.log(`[${instanceName}] Handling request for: ${req.url}`);
-
-    const filePath = path.join(__dirname, 'index.html');
-    
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            res.writeHead(500, { 'Content-Type': 'text/plain' });
-            return res.end('Internal Server Error'); 
-        }
-
-        const headers = { 
-            'Content-Type': 'text/html',
-            'X-App-Name': APP_NAME
-        };
-
-        if (isDev) {
-            headers['X-Backend-Server'] = instanceName;
-        }
-
-        res.writeHead(200, headers);
-        res.end(data);
-    });
-});
-
-server.listen(PORT, () => {
-    console.log("SERVICE ONLINE");
-    console.log(`APP NAME: ${APP_NAME}`);
-    console.log(`INSTANCE ID: ${instanceName}`);
-});
-```
+- [src/server.js](src/server.js)
 
 ---
 
 ## src/index.html
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-<title>NGINX Load Balancer Demo</title>
-</head>
-<body>
+The simple HTML page served by the Node.js application.
 
-<h1>Hello from the Node Cluster!</h1>
-<p>Check your terminal logs or browser headers to see which instance handled the request.</p>
-
-</body>
-</html>
-```
+- [src/index.html](src/index.html)
 
 ---
 
 ## Dockerfile
 
-```dockerfile
-FROM node:24-alpine
+This file defines how the Node.js application Docker image is built.
 
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install --only=production
-
-COPY src/ .
-
-EXPOSE 3000
-
-CMD ["node", "server.js"]
-```
+- [Dockerfile](Dockerfile)
 
 ---
 
 ## docker-compose.yml
 
-```yaml
-services:
+This file orchestrates the NGINX gateway and multiple Node.js application instances.
 
-  gateway:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - app
-
-  app:
-    image: nginx-primer-node
-    build: .
-    deploy:
-      replicas: 3
-    environment:
-      - APP_NAME=alpha
-      - NODE_ENV=development
-      - PORT=3000
-```
+- [docker-compose.yaml](docker-compose.yaml)
 
 ---
 
 ## nginx.conf
 
-```nginx
-events {
-    worker_connections 1024;
-}
+This file contains the NGINX configuration for load balancing requests to the Node.js cluster.
 
-http {
-
-    upstream node_cluster {
-        server app:3000;
-    }
-
-    server {
-
-        listen 80;
-
-        location / {
-            proxy_pass http://node_cluster;
-
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-        }
-
-    }
-
-}
-```
+- [nginx.conf](nginx.conf)
 
 ---
 
