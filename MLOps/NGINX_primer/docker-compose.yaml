@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+    # ==========================================
+    # 1. THE LOAD BALANCER (NGINX)
+    # ==========================================
+    gateway:
+        image: nginx:latest # Docker pulls this automatically, no local install needed!
+        container_name: nginx_gateway
+        ports:
+            - "80:80"  # Map port 80 of the host to port 80 of the container
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mount the custom NGINX configuration file (read-only)
+        depends_on:
+            - app
+
+    # ==========================================
+    # 2. APPLICATION INSTANCES (NODE.JS)
+    # ==========================================
+    app:
+      image: nginx-primer-node # This image will be built from the Dockerfile in the current directory
+      build: .
+      deploy:
+        replicas: 3  # Run 3 instances of the app for load balancing
+      environment:
+        - APP_NAME=alpha
+        - NODE_ENV=development
+        - PORT=3000
+    # Notice: No "ports" section here! 
+    # They are hidden from the outside world and only NGINX can reach them.
+
+
+# ==============================================================================
+# REFERENCE for defining multiple services (not needed in our case since we use replicas):
+# ==============================================================================
+# This syntax defines individual services if each server does different things.
+# In our case, all servers are the same and we just want to run multiple instances 
+# of the same server. We use 'replicas' (above) instead of defining separate 
+# services for each server (below).
+# 
+# services:
+#   app1:
+#     image: nginx-primer-node 
+#     container_name: nginx_primer_app1
+#     environment:
+#       - APP_NAME=alpha 
+#     ports:
+#       - "3001:3000"
+#
+#   app2:
+#     image: nginx-primer-node
+#     container_name: nginx_primer_app2
+#     environment:
+#       - APP_NAME=beta 
+#     ports:
+#       - "3002:3000"
+#
+#   app3:
+#     image: nginx-primer-node
+#     container_name: nginx_primer_app3
+#     environment:
+#       - APP_NAME=gamma 
+#     ports:
+#       - "3003:3000"
+# ==============================================================================
